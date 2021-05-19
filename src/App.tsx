@@ -87,24 +87,59 @@ function ScoreRow(props: IScoreRowProps) {
 interface IMatchRowProps {
   match: Match
   scores: number[]
+  currentPlayer: number
+  diceValues: number[]
 }
 
 function MatchRow(props: IMatchRowProps) {
   return (
     <ScoreRow label={props.match.label}>
-      {props.scores.map((playerScore) =>
-        <td className="match">{playerScore}</td>
-      )}
+      {props.scores.map((playerScore, i) => {
+        let active = (i === props.currentPlayer),
+          score = (active && playerScore === undefined) ? props.match.fn(props.diceValues) : playerScore,
+          className = "match"
+            + (active ? (score === 0 ? " zero" : " ok") : "")
+            + (!active && playerScore !== undefined ? " done" : ""),
+          content = active ? (score > 0 ? score : "—") : ""
+        return (
+          <td className={className}>{content}</td>
+        )
+      })}
     </ScoreRow>
   )
 }
 
-function ScoreBoard(props: {children: JSX.Element[]}) {
+interface IScoreBoardProps {
+  playerCount: number
+  currentPlayer: number
+  score: Score
+  diceValues: number[]
+  children: JSX.Element[]
+}
+
+function ScoreBoard(props: IScoreBoardProps) {
+  let headers = [(<td></td>)] // init with empty cell (sits on top of label column)
+  for (let i = 0; i < props.playerCount; i++) {
+    let label = `~ ${i + 1} ~`,
+        className = (i === props.currentPlayer) ? "active" : ""
+    headers.push(<th className={className}>{label}</th>)
+  }
   return (
     <div id="scoreboard">
       <table>
         <tr>
+          {headers}
         </tr>
+        {matches.map((match: Match, matchIndex: number) => {
+          let scores = []
+          for (let playerIndex = 0; playerIndex < props.playerCount; playerIndex++) {
+            scores.push(props.score[playerIndex][matchIndex])
+          }
+          return (<MatchRow match={match}
+                            scores={scores}
+                            currentPlayer={props.currentPlayer}
+                            diceValues={props.diceValues}/>)
+        })}
         {props.children}
       </table>
     </div>
@@ -115,14 +150,47 @@ interface IAppProps { }
 
 type Score = number[][]
 
+interface IDice {
+  value: number
+  keep: boolean
+}
+
 interface IAppState {
   hidden: boolean
   playerCount: number
+  currentPlayer: number
   score: Score
+  dice: IDice[]
 }
 
 class App extends React.Component<IAppProps, IAppState> {
-  emptyScore(playerCount : number) {
+  setCssVariables(): void {
+    let animationDuration = 450,
+      fullheight = window.innerHeight,
+      fullwidth = Math.min(window.innerWidth, 375),
+      unit = Math.min(fullheight, fullwidth) / 13,
+      tableMargin = 2 * (unit / 2),
+      trMargin = unit / 8,
+      rowHead = unit,
+      rowHeight = unit * 1.5,
+      tableContentHeight = tableMargin + rowHead + 17 * (rowHeight + trMargin), //unit * 29.625,
+      topContentHeight = unit * 4.5,
+      bottomWrapperHeight = Math.min(fullheight - topContentHeight, tableContentHeight)
+    document.documentElement.style.setProperty('--bottom-wrapper-height', `${bottomWrapperHeight}px`)
+    document.documentElement.style.setProperty('--animation-duration', `${animationDuration}ms`)
+  }
+  rollDice(dices: IDice[] | []): IDice[] {
+    let newDices = []
+    for (let i = 0; i < 5; i++) {
+      if (dices[i] && dices[i].keep) continue
+      newDices[i] = {
+        value: Math.ceil(Math.random() * 6),
+        keep: false
+      }
+    }
+    return newDices
+  }
+  emptyScore(playerCount: number) {
     let score = []
     for (let i = 0; i < playerCount; i++) score.push([])
     return score
@@ -130,34 +198,31 @@ class App extends React.Component<IAppProps, IAppState> {
   constructor(props: IAppProps) {
     super(props)
     this.state = {
-      hidden: true,
+      hidden: false,
       playerCount: 3,
-      score: this.emptyScore(3)
+      currentPlayer: 0,
+      score: this.emptyScore(3),
+      dice: this.rollDice([])
     }
   }
   componentDidMount() {
+    this.setCssVariables()
     setTimeout(() => this.setState({ hidden: false }), 1000)
   }
   render() {
     return (
       <div id="wrapper" className={this.state.hidden ? "hidden" : ""}>
         <DiceContainer>
-          <Dice value={1} />
-          <Dice value={2} keep />
-          <Dice value={0} />
-          <Dice value={6} shake />
-          <Dice value={5} shake />
+          {this.state.dice.map((d: IDice) =>
+            <Dice value={d.value} keep={d.keep} />
+          )}
         </DiceContainer>
         <RollButton label="Würfeln" />
         <div id="bottom-wrapper">
-          <ScoreBoard>
-            {matches.map((match : Match, matchIndex : number) => {
-              let scores = []
-              for (let playerIndex = 0; playerIndex < this.state.playerCount; playerIndex++) {
-                scores.push(this.state.score[playerIndex][matchIndex])
-              }
-              return (<MatchRow match={match} scores={scores}/>)
-            })}
+          <ScoreBoard playerCount={this.state.playerCount}
+            currentPlayer={this.state.currentPlayer}
+            score={this.state.score}
+            diceValues={this.state.dice.map((d: IDice) => d.value)}>
           </ScoreBoard>
         </div>
       </div>
