@@ -1,0 +1,16 @@
+#scoreboard table {
+  border-collapse: separate;
+  border-spacing: var(--half-unit) var(--unit-8th);
+  margin: var(--half-unit) auto;
+}
+
+#scoreboard th {
+  border-radius: var(--quarter-unit);
+  background-color: rgba(0, 0, 0, .25);
+  color: var(--felt-color);
+  font-family: 'Lora', serif;
+}
+
+#scoreboard th.active {
+  background-color: var(--font-strong-color);
+}

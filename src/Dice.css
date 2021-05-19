@@ -1,0 +1,145 @@
+@keyframes shakeY2 {
+  from,
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translate3d(0, calc(-2 * var(--quarter-unit)), 0);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translate3d(0, var(--quarter-unit), 0);
+  }
+}
+
+.dice {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: var(--two-unit);
+  min-height: var(--two-unit);
+  text-align: center;
+  line-height: var(--two-unit);
+  background-size: contain;
+  border: none;
+  border-radius: var(--quarter-unit);
+  background-color: var(--interactive-color);
+  /*background-color: #d8d8d8;*/
+  box-shadow: var(--clickable-shadow);
+  cursor: pointer;
+}
+
+.dice.blank .pip-row {
+  display: none;
+}
+
+.dice.inactive {
+  background-color: var(--inactive-color);
+}
+
+.dice.inactive .pip {
+  box-shadow: 0 0 var(--quarter-unit) rgba(0, 0, 0, .2);
+}
+
+.dice-inside {
+  width: calc(var(--two-unit) - var(--unit-8th));
+  height: calc(var(--two-unit) - var(--unit-8th));
+  border-radius: var(--half-unit);
+  /*background-color: var(--interactive-color);*/
+  /*background-color: white;*/
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dice .pip-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.dice .pip {
+  background-color: white;
+  box-shadow: 0 0 var(--quarter-unit) #647687;
+  /*background-color: var(--negative-color);*/
+  width: calc(2.5 * var(--unit-8th));
+  height: calc(2.5 * var(--unit-8th));
+  border-radius: var(--quarter-unit);
+  margin: 0 var(--quarter-unit);
+}
+
+.top-pips .pip {
+  margin-top: var(--quarter-unit);
+}
+
+.bottom-pips .pip {
+  margin-bottom: var(--quarter-unit);
+}
+
+.dice.d1 .top-pips, .dice.d1 .bottom-pips, .dice.d1 .middle-pips .pip:first-child {
+  display: none;
+}
+
+.dice.d1 .dice-inside, .dice.d1 .middle-pips {
+  justify-content: center;
+}
+
+.dice.d2 .middle-pips, .dice.d2 .bottom-pips .pip:first-child, .dice.d2 .top-pips .pip:first-child {
+  display: none;
+}
+
+.dice.d2 .top-pips {
+  justify-content: flex-start;
+}
+
+.dice.d2 .bottom-pips {
+  justify-content: flex-end;
+}
+
+.dice.d3 .middle-pips .pip:first-child, .dice.d3 .bottom-pips .pip:first-child, .dice.d3 .top-pips .pip:first-child {
+  display: none;
+}
+
+.dice.d3 .top-pips {
+  justify-content: flex-start;
+}
+
+.dice.d3 .middle-pips {
+  justify-content: center;
+}
+
+.dice.d3 .bottom-pips {
+  justify-content: flex-end;
+}
+
+.dice.d4 .middle-pips {
+  display: none;
+}
+
+.dice.d5 .middle-pips .pip:first-child {
+  display: none;
+}
+
+.dice.d5 .middle-pips {
+  justify-content: center;
+}
+
+.dice.keep {
+  transform: rotateZ(-15deg);
+}
+
+.dice.animate {
+  animation-name: shakeY2;
+  animation-duration: var(--animation-duration, 5000ms);
+  animation-timing-function: linear;
+}
+
+.dice.animate .dice-inside .pip-row {
+  display: none;
+}

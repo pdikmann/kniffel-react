@@ -1,0 +1,13 @@
+#scoreboard tr {
+  height: calc(var(--unit) + var(--half-unit));
+  cursor: default;
+}
+
+#scoreboard tr:first-child {
+  height: var(--unit);
+}
+
+#scoreboard td.row-label {
+  color: var(--font-label-color);
+  font-weight: 500;
+}

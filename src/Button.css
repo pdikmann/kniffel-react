@@ -1,0 +1,21 @@
+.button {
+  position: relative;
+  border: none;
+  border-radius: var(--quarter-unit);
+  box-shadow: var(--clickable-shadow);
+  background-color: var(--interactive-color);
+  width: calc(var(--full-width) - var(--unit));
+  min-height: calc(var(--unit) + var(--half-unit));
+  /* padding: var(--half-unit); */
+  margin: var(--half-unit) var(--half-unit) 0;
+  color: white;
+  text-align: center;
+  line-height: calc(var(--unit) + var(--half-unit));
+  cursor: pointer;
+}
+
+.button.inactive {
+  background-color: var(--inactive-color);
+  color: var(--font-dim-color);
+  font-weight: 500;
+}

@@ -1,13 +1,55 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+  --unit: calc(100 / 13 * 1vmin);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@media only screen and (min-width: 375px) {
+  :root {
+    --unit: calc(100 / 13 * 3.75px);
+  }
+}
+
+:root {
+  --full-width: calc(var(--unit) * 13);
+  --unit-8th: calc(var(--unit) / 8);
+  --unit-16th: calc(var(--unit) / 16);
+  --quarter-unit: calc(var(--unit) / 4);
+  --half-unit: calc(var(--unit) / 2);
+  --two-unit: calc(var(--unit) * 2);
+  --three-unit: calc(var(--unit) * 3);
+  --felt-color: #D7D2CC;
+  --interactive-color: #69849B;
+  --inactive-color: #999999;
+  --negative-color: #B3504B;
+  --positive-color: #7CAC59;
+  --text-shadow-ok: #9de469;
+  --text-shadow-zero: #ff5850;
+  --text-shadow-inactive: rgba(255, 255, 255, .4);
+  --clickable-shadow: none;
+  /*--clickable-shadow: var(--unit-8th) var(--unit-8th) var(--unit-8th) rgba(0, 0, 0, 0.3),*/
+  /*0 0 var(--unit-8th) rgba(0, 0, 0, 0.3);*/
+  /*--inset-shadow: inset var(--unit-16th) var(--unit-16th) var(--unit-16th) #2e333869;*/
+  --inset-shadow-ok: inset 0 0 var(--quarter-unit) var(--unit-8th) #658151;
+  --inset-shadow-zero: inset 0 0 var(--quarter-unit) var(--unit-8th) #7d3936;
+  --inset-shadow-inactive: inset 0 0 var(--quarter-unit) var(--unit-8th) rgba(0, 0, 0, 0.15);
+  --halo-shadow: inset 0 0 0 var(--unit-16th) var(--font-dim-color);
+  --inside-border-shadow: inset 0 0 0 var(--unit-8th) white;
+  /* --lock-image: url(../gfx/lock2.png); */
+  --font-label-color: rgba(0, 0, 0, 0.4);
+  --font-dim-color: rgba(0, 0, 0, 0.4);
+  --font-dim-color-solid: #666;
+  --font-strong-color: rgba(0, 0, 0, 0.8);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-size: calc(var(--unit) * 0.65);
+  font-family: 'Raleway', sans-serif;
+  font-weight: 400;
+}
+
+body {
+  background-color: var(--felt-color);
+  background-image: url(./Images/noise.png);
+  background-blend-mode: overlay;
 }

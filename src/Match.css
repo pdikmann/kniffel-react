@@ -1,0 +1,31 @@
+#scoreboard td.match {
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  font-size: 1.1em;
+  border-radius: var(--quarter-unit);
+  /*box-shadow: var(--inset-shadow);*/
+  background-color: white;
+  min-width: var(--two-unit);
+  text-align: center;
+  cursor: pointer;
+  color: var(--font-strong-color);
+}
+
+#scoreboard td.ok {
+  background-color: var(--positive-color);
+  text-shadow: 0 0 4px var(--text-shadow-ok), 0 0 10px var(--text-shadow-ok), 0 0 16px var(--text-shadow-ok);
+  box-shadow: var(--inset-shadow-ok);
+  /*box-shadow: var(--inside-border-shadow);*/
+  /*color: white;*/
+}
+
+#scoreboard td.ok.inactive {
+  background-color: var(--inactive-color);
+  color: var(--font-dim-color-solid);
+  text-shadow: 0 0 4px var(--text-shadow-inactive), 0 0 10px var(--text-shadow-inactive), 0 0 16px var(--text-shadow-inactive);
+  box-shadow: var(--inset-shadow-inactive);
+}
+
+#scoreboard td.zero.inactive {
+  color: var(--font-dim-color);
+}
