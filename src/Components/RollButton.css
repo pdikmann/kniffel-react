@@ -1,3 +1,7 @@
+#reroll {
+  width: calc(var(--full-width) - var(--unit));
+}
+
 #reroll.new-game {
   background-color: var(--positive-color);
 }

@@ -1,172 +1,44 @@
 import React from 'react';
 import './App.css';
-import './DiceContainer.css'
-import './Dice.css'
-import './Button.css'
-import './RollButton.css'
-import './ScoreBoard.css'
-import './ScoreRow.css'
-import './Match.css'
-import matches, {Match} from './matches'
-
-
-interface IDiceProps {
-  value: number
-  shake?: boolean
-  keep?: boolean
-  onClick?: Function
-}
-
-function Dice(props: IDiceProps) {
-  let keep = props.keep ? " keep" : "",
-    pips = props.value ? ` d${props.value}` : " blank",
-    shake = props.shake ? " animate" : ""
-  return (
-    <button className={"dice" + pips + keep + shake}>
-      <div className="dice-inside">
-        <div className="pip-row top-pips">
-          <div className="pip"></div>
-          <div className="pip"></div>
-        </div>
-        <div className="pip-row middle-pips">
-          <div className="pip"></div>
-          <div className="pip"></div>
-        </div>
-        <div className="pip-row bottom-pips">
-          <div className="pip"></div>
-          <div className="pip"></div>
-        </div>
-      </div>
-    </button>
-  )
-}
-
-function DiceContainer(props: { children: JSX.Element[] }) {
-  return (
-    <div id="dice-container">
-      {props.children}
-    </div>
-  )
-}
-
-function Button(props: {
-  children: string,
-  id?: string
-  inactive?: boolean
-}) {
-  return (
-    <button className={"button" + (props.inactive ? " inactive" : "")}
-      id={props.id ? props.id : ""}>
-      {props.children}
-    </button>
-  )
-}
-
-function RollButton(props: { label: string }) {
-  return (
-    <Button id="reroll">
-      {props.label}
-    </Button>
-  )
-}
-
-interface IScoreRowProps {
-  label: string,
-  children: JSX.Element | JSX.Element[]
-}
-
-function ScoreRow(props: IScoreRowProps) {
-  return (
-    <tr>
-      <td className="row-label">{props.label}</td>
-      {props.children}
-    </tr>
-  )
-}
-
-interface IMatchRowProps {
-  match: Match
-  scores: number[]
-  currentPlayer: number
-  diceValues: number[]
-}
-
-function MatchRow(props: IMatchRowProps) {
-  return (
-    <ScoreRow label={props.match.label}>
-      {props.scores.map((playerScore, i) => {
-        let active = (i === props.currentPlayer),
-          score = (active && playerScore === undefined) ? props.match.fn(props.diceValues) : playerScore,
-          className = "match"
-            + (active ? (score === 0 ? " zero" : " ok") : "")
-            + (!active && playerScore !== undefined ? " done" : ""),
-          content = active ? (score > 0 ? score : "—") : ""
-        return (
-          <td className={className}>{content}</td>
-        )
-      })}
-    </ScoreRow>
-  )
-}
-
-interface IScoreBoardProps {
-  playerCount: number
-  currentPlayer: number
-  score: Score
-  diceValues: number[]
-  children: JSX.Element[]
-}
-
-function ScoreBoard(props: IScoreBoardProps) {
-  let headers = [(<td></td>)] // init with empty cell (sits on top of label column)
-  for (let i = 0; i < props.playerCount; i++) {
-    let label = `~ ${i + 1} ~`,
-        className = (i === props.currentPlayer) ? "active" : ""
-    headers.push(<th className={className}>{label}</th>)
-  }
-  return (
-    <div id="scoreboard">
-      <table>
-        <tr>
-          {headers}
-        </tr>
-        {matches.map((match: Match, matchIndex: number) => {
-          let scores = []
-          for (let playerIndex = 0; playerIndex < props.playerCount; playerIndex++) {
-            scores.push(props.score[playerIndex][matchIndex])
-          }
-          return (<MatchRow match={match}
-                            scores={scores}
-                            currentPlayer={props.currentPlayer}
-                            diceValues={props.diceValues}/>)
-        })}
-        {props.children}
-      </table>
-    </div>
-  )
-}
+import Dice from './Components/Dice'
+import DiceContainer from './Components/DiceContainer'
+import RollButton from './Components/RollButton'
+import ScoreBoard from './Components/ScoreBoard'
+import { Score, TurnState } from './Types/Common'
+import Config from './Components/Config'
 
 interface IAppProps { }
-
-type Score = number[][]
 
 interface IDice {
   value: number
   keep: boolean
 }
 
+enum BonusState {
+  Undecided,
+  Fail,
+  Success
+}
+
 interface IAppState {
+  turnState: TurnState
   hidden: boolean
   playerCount: number
   currentPlayer: number
-  score: Score
   dice: IDice[]
+  rolling: boolean
+  gameOver: boolean
+  score: Score                // score, indexed by [player-index][match-index]
+  bonus: number[]             // bonus score, indexed by [player-index]
+  bonusState: BonusState[]    // bonus state, indexed by [player-index]
+  lastSelectedMatch: number[] // indexed by [player-index]
 }
+
+let animationDuration = 450
 
 class App extends React.Component<IAppProps, IAppState> {
   setCssVariables(): void {
-    let animationDuration = 450,
-      fullheight = window.innerHeight,
+    let fullheight = window.innerHeight,
       fullwidth = Math.min(window.innerWidth, 375),
       unit = Math.min(fullheight, fullwidth) / 13,
       tableMargin = 2 * (unit / 2),
@@ -190,19 +62,40 @@ class App extends React.Component<IAppProps, IAppState> {
     }
     return newDices
   }
-  emptyScore(playerCount: number) {
-    let score = []
-    for (let i = 0; i < playerCount; i++) score.push([])
-    return score
+  advanceTurn() {
+    if (this.state.rolling
+        || this.state.turnState === TurnState.Selection)
+      return
+    this.setState((state: IAppState) => ({
+      rolling: true
+    }))
+    setTimeout(() => {
+      this.setState((state: IAppState) => ({
+        rolling: false,
+        turnState: (state.turnState + 1) % TurnState.MAX
+      }))
+    }, animationDuration)
+  }
+  perPlayerState(playerCount: number) {
+    return {
+      score: new Array(playerCount).fill([]),
+      bonus: new Array(playerCount).fill(0),
+      bonusState: new Array(playerCount).fill(BonusState.Undecided),
+      lastSelectedMatch: new Array(playerCount).fill(null)
+    }
   }
   constructor(props: IAppProps) {
     super(props)
+    this.advanceTurn = this.advanceTurn.bind(this)
     this.state = {
+      turnState: TurnState.FirstThrow,
       hidden: false,
-      playerCount: 3,
+      playerCount: 1,
       currentPlayer: 0,
-      score: this.emptyScore(3),
-      dice: this.rollDice([])
+      dice: this.rollDice([]),
+      rolling: false,
+      gameOver: false,
+      ...this.perPlayerState(1)
     }
   }
   componentDidMount() {
@@ -213,18 +106,28 @@ class App extends React.Component<IAppProps, IAppState> {
     return (
       <div id="wrapper" className={this.state.hidden ? "hidden" : ""}>
         <DiceContainer>
-          {this.state.dice.map((d: IDice) =>
-            <Dice value={d.value} keep={d.keep} />
+          {this.state.dice.map((d: IDice, i: number) =>
+            <Dice 
+              key={i}
+              value={d.value}
+              keep={d.keep}
+              rolling={this.state.rolling}/>
           )}
         </DiceContainer>
-        <RollButton label="Würfeln" />
+        <RollButton
+          turnState={this.state.turnState}
+          onClick={this.advanceTurn} />
         <div id="bottom-wrapper">
-          <ScoreBoard playerCount={this.state.playerCount}
+          <ScoreBoard
+            playerCount={this.state.playerCount}
             currentPlayer={this.state.currentPlayer}
             score={this.state.score}
-            diceValues={this.state.dice.map((d: IDice) => d.value)}>
+            diceValues={this.state.dice.map((d: IDice) => d.value)}
+            turnState={this.state.turnState}
+            rolling={this.state.rolling}>
           </ScoreBoard>
         </div>
+        <Config />
       </div>
     )
   }

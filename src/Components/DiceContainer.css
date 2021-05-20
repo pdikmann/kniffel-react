@@ -4,6 +4,7 @@
   flex-wrap: wrap;
   width: calc(var(--full-width) - var(--unit));
   margin-left: var(--half-unit);
+  margin-bottom: var(--half-unit);
   padding-top: var(--half-unit);
   position: relative;
 }
