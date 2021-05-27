@@ -3,7 +3,7 @@
   cursor: default;
 }
 
-#scoreboard tr:first-child {
+#scoreboard thead tr {
   height: var(--unit);
 }
 
