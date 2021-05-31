@@ -2,6 +2,7 @@ import './ScoreBoard.css'
 import {Score, TurnState} from '../Types/Common'
 import MatchRow from './MatchRow'
 import matches, {Match} from '../Logic/matches'
+import {BonusRow} from "./BonusRow";
 
 interface IScoreBoardProps {
   playerCount: number
@@ -19,6 +20,18 @@ function ScoreBoard(props: IScoreBoardProps) {
       className = (i === props.currentPlayer) ? "active" : ""
     headers.push(<th key={i} className={className}>{label}</th>)
   }
+  let matchRows = matches.map((match: Match, matchIndex: number) => {
+    let scores = []
+    for (let playerIndex = 0; playerIndex < props.playerCount; playerIndex++) {
+      scores.push(props.score[playerIndex][matchIndex])
+    }
+    return (
+      <MatchRow key={matchIndex}
+                matchIndex={matchIndex}
+                match={match}
+                scores={scores}/>
+    )
+  })
   return (
     <div id="scoreboard">
       <table>
@@ -28,18 +41,12 @@ function ScoreBoard(props: IScoreBoardProps) {
         </tr>
         </thead>
         <tbody>
-        {matches.map((match: Match, matchIndex: number) => {
-          let scores = []
-          for (let playerIndex = 0; playerIndex < props.playerCount; playerIndex++) {
-            scores.push(props.score[playerIndex][matchIndex])
-          }
-          return (
-            <MatchRow key={matchIndex}
-                      matchIndex={matchIndex}
-                      match={match}
-                      scores={scores}/>
-          )
-        })}
+        {matchRows.slice(0, 6)}
+        <BonusRow/>
+        {matchRows.slice(6)}
+        {/*<ScoreRow label="Summe Oben"></ScoreRow>*/}
+        {/*<ScoreRow label="Summe Unten"></ScoreRow>*/}
+        {/*<ScoreRow label="Summe Gesamt"></ScoreRow>*/}
         {props.children}
         </tbody>
       </table>

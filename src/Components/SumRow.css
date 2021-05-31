@@ -1,0 +1,8 @@
+#scoreboard td.sum {
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    font-size: 1.1em;
+    min-width: var(--two-unit);
+    text-align: center;
+    color: var(--font-dim-color);
+}
