@@ -56,7 +56,6 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   selectMatch(matchIndex: number, playerIndex: number) {
-    console.log("matching")
     this.setState((state) => {
       if (state.rolling
         || state.turnState === TurnState.FirstThrow
