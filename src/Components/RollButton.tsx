@@ -9,29 +9,32 @@ interface IRollButtonProps {
 function RollButton(props: IRollButtonProps) {
   return (
     <MergedContexts>
-      {({turnState, advanceTurn}: IMergedContexts) => {
+      {({gameOver, currentPlayer, turnState, advanceTurn}: IMergedContexts) => {
         let label: string = '',
-          inactive = turnState === TurnState.Selection
+          inactive = turnState === TurnState.Selection,
+          playerNumber = currentPlayer + 1
         switch (turnState) {
           case TurnState.FirstThrow:
-            label = 'Wurf 1'
+            label = `Spieler ${playerNumber} - Wurf 1`
             break
           case TurnState.SecondThrow:
-            label = 'Wurf 2'
+            label = `Spieler ${playerNumber} - Wurf 2`
             break
           case TurnState.ThirdThrow:
-            label = 'Wurf 3'
+            label = `Spieler ${playerNumber} - Wurf 3`
             break
           case TurnState.Selection:
-            label = 'Auswahl'
+            label = `Spieler ${playerNumber} - Auswahl`
             break
         }
+        if (gameOver) label = 'Neues Spiel'
         return (
           <Button id="reroll"
                   onClick={inactive ? undefined : advanceTurn}
-                  inactive={inactive}>
+                  inactive={inactive}
+                  accent={gameOver}>
             {label}
-          </ Button>
+          </Button>
         )
       }}
     </MergedContexts>
