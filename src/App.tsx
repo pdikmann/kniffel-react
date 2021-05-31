@@ -24,6 +24,7 @@ class App extends React.Component<IAppProps, IAppState> {
     // this.advanceTurn = this.advanceTurn.bind(this)
     this.nextPlayer = this.nextPlayer.bind(this)
     this.resetDice = this.resetDice.bind(this)
+    this.updateBonus = this.updateBonus.bind(this)
     this.state = this.initialState(2)
     this.interactions = {
       advanceTurn: this.advanceTurn.bind(this),
@@ -73,13 +74,28 @@ class App extends React.Component<IAppProps, IAppState> {
         score
       }
     })
+    this.updateBonus(playerIndex)
     this.resetDice()
     this.nextPlayer()
   }
 
+  updateBonus(playerIndex: number) {
+    this.setState(s => {
+      let bonusState = s.bonusState.slice(), bonus = s.bonus.slice();
+      if (s.score[playerIndex].slice(0, 6).filter(x => x === 0).length > 0) {
+        bonusState[playerIndex] = BonusState.Fail
+        bonus[playerIndex] = 0
+      } else if (s.score[playerIndex].slice(0, 6).filter(x => x > 0).length === 6) {
+        bonusState[playerIndex] = BonusState.Success
+        bonus[playerIndex] = 35
+      }
+      return {bonusState, bonus}
+    })
+  }
+
   resetDice() {
     this.setState(s => ({
-      dice: s.dice.map(d=>({...d, keep: false}))
+      dice: s.dice.map(d => ({...d, keep: false}))
     }))
   }
 
