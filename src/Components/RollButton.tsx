@@ -1,7 +1,6 @@
 import './RollButton.css'
 import Button from './Button'
 import {IMergedContexts, TurnState} from '../Types/Common'
-import {MouseEventHandler} from 'react'
 import MergedContexts from "./MergedContexts";
 
 interface IRollButtonProps {
@@ -10,7 +9,7 @@ interface IRollButtonProps {
 function RollButton(props: IRollButtonProps) {
   return (
     <MergedContexts>
-      {({turnState, advanceTurn} : IMergedContexts) => {
+      {({turnState, advanceTurn}: IMergedContexts) => {
         let label: string = '',
           inactive = turnState === TurnState.Selection
         switch (turnState) {

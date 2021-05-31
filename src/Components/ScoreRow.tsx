@@ -1,7 +1,7 @@
 import './ScoreRow.css'
 
 interface IScoreRowProps {
-  label: string,
+  label: string
   children: JSX.Element | JSX.Element[]
 }
 
