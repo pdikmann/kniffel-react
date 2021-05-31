@@ -15,8 +15,7 @@ function MatchRow({matchIndex, match, match: {fn, label}, scores}: IMatchRowProp
       {({dice, selectMatch}) => {
         return (
           <ScoreRow label={label}>
-            {scores.map((playerScore, playerIndex) => {
-              return (
+            {scores.map((playerScore, playerIndex) => (
                 <MatchCell
                   key={playerIndex}
                   match={match}
@@ -25,7 +24,7 @@ function MatchRow({matchIndex, match, match: {fn, label}, scores}: IMatchRowProp
                   {...{matchIndex, playerIndex}}
                 />
               )
-            })}
+            )}
           </ScoreRow>
         )
       }}
