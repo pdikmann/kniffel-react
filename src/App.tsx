@@ -136,6 +136,10 @@ class App extends React.Component<IAppProps, IAppState> {
     if (this.state.rolling
       || this.state.turnState === TurnState.Selection)
       return
+    if (this.state.gameOver){
+      this.setState(() => this.initialState(this.state.playerCount))
+      return
+    }
     this.setState(() => ({
       rolling: true
     }))
