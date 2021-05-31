@@ -44,7 +44,7 @@ class App extends React.Component<IAppProps, IAppState> {
       lastSelectedMatch[playerIndex] = matchIndex
       let score = state.score.slice()
       let playerScore = state.score[playerIndex].slice()
-      playerScore[matchIndex] = matches[matchIndex].fn(this.state.dice.map(d => d.value))
+      playerScore[matchIndex] = matches[matchIndex].fn(this.state.diceValues)
       score[playerIndex] = playerScore
       return {
         lastSelectedMatch,
@@ -120,7 +120,7 @@ class App extends React.Component<IAppProps, IAppState> {
         }
       }
     }
-    let diceValues = dice.map(d => d.value)
+    let diceValues = dice.map(d => d.value).sort()
     return {dice, diceValues}
   }
 

@@ -1,3 +1,4 @@
+import './MatchCell.css'
 import MergedContexts from "./MergedContexts";
 import {TurnState} from "../Types/Common";
 import {Match} from "../Logic/matches";

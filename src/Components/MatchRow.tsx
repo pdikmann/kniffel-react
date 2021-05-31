@@ -1,4 +1,3 @@
-import './MatchRow.css'
 import ScoreRow from './ScoreRow'
 import {Match} from '../Logic/matches'
 import MergedContexts from "./MergedContexts";
