@@ -21,7 +21,6 @@ class App extends React.Component<IAppProps, IAppState> {
 
   constructor(props: IAppProps) {
     super(props)
-    // this.advanceTurn = this.advanceTurn.bind(this)
     this.nextPlayer = this.nextPlayer.bind(this)
     this.resetDice = this.resetDice.bind(this)
     this.updateBonus = this.updateBonus.bind(this)
@@ -117,21 +116,6 @@ class App extends React.Component<IAppProps, IAppState> {
     })
   }
 
-  setCssVariables(): void {
-    let fullheight = window.innerHeight,
-      fullwidth = Math.min(window.innerWidth, 375),
-      unit = Math.min(fullheight, fullwidth) / 13,
-      tableMargin = 2 * (unit / 2),
-      trMargin = unit / 8,
-      rowHead = unit,
-      rowHeight = unit * 1.5,
-      tableContentHeight = tableMargin + rowHead + 17 * (rowHeight + trMargin), //unit * 29.625,
-      topContentHeight = unit * 4.5,
-      bottomWrapperHeight = Math.min(fullheight - topContentHeight, tableContentHeight)
-    document.documentElement.style.setProperty('--bottom-wrapper-height', `${bottomWrapperHeight}px`)
-    document.documentElement.style.setProperty('--animation-duration', `${animationDuration}ms`)
-  }
-
   rollDice(oldDices: IDice[] | []): { dice: IDice[], diceValues: number[] } {
     let dice = []
     for (let i = 0; i < 5; i++) {
@@ -163,6 +147,21 @@ class App extends React.Component<IAppProps, IAppState> {
         })
       )
     }, animationDuration)
+  }
+
+  setCssVariables(): void {
+    let fullheight = window.innerHeight,
+      fullwidth = Math.min(window.innerWidth, 375),
+      unit = Math.min(fullheight, fullwidth) / 13,
+      tableMargin = 2 * (unit / 2),
+      trMargin = unit / 8,
+      rowHead = unit,
+      rowHeight = unit * 1.5,
+      tableContentHeight = tableMargin + rowHead + 17 * (rowHeight + trMargin), //unit * 29.625,
+      topContentHeight = unit * 4.5,
+      bottomWrapperHeight = Math.min(fullheight - topContentHeight, tableContentHeight)
+    document.documentElement.style.setProperty('--bottom-wrapper-height', `${bottomWrapperHeight}px`)
+    document.documentElement.style.setProperty('--animation-duration', `${animationDuration}ms`)
   }
 
   componentDidMount() {
