@@ -29,3 +29,15 @@
 #scoreboard td.zero.inactive {
   color: var(--font-dim-color);
 }
+
+#scoreboard td.done {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-color: transparent !important;
+  color: var(--font-dim-color) !important;
+  cursor: default;
+}
+
+#scoreboard td.last-selected {
+  box-shadow: var(--halo-shadow) !important;
+}

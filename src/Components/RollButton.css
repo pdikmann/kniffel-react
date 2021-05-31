@@ -1,5 +1,6 @@
 #reroll {
   width: calc(var(--full-width) - var(--unit));
+  margin-bottom: 0;
 }
 
 #reroll.new-game {

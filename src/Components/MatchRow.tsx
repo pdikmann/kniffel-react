@@ -1,32 +1,36 @@
 import './MatchRow.css'
 import ScoreRow from './ScoreRow'
 import {Match} from '../Logic/matches'
-import {TurnState} from '../Types/Common'
+import MergedContexts from "./MergedContexts";
+import MatchCell from "./MatchCell";
 
 interface IMatchRowProps {
   match: Match
   scores: number[]
-  currentPlayer: number
-  diceValues: number[]
-  turnState: TurnState
-  rolling: boolean
+  matchIndex: number
 }
 
-function MatchRow(props: IMatchRowProps) {
+function MatchRow({matchIndex, match, match: {fn, label}, scores}: IMatchRowProps) {
   return (
-    <ScoreRow label={props.match.label}>
-      {props.scores.map((playerScore, i) => {
-        let active = (i === props.currentPlayer && props.turnState !== TurnState.FirstThrow && !props.rolling),
-          score = (active && playerScore === undefined) ? props.match.fn(props.diceValues) : playerScore,
-          className = "match"
-            + (active ? (score === 0 ? " zero" : " ok") : "")
-            + (!active && playerScore !== undefined ? " done" : ""),
-          content = active ? (score > 0 ? score : "—") : ""
+    <MergedContexts>
+      {({dice, selectMatch}) => {
         return (
-          <td className={className}>{content}</td>
+          <ScoreRow label={label}>
+            {scores.map((playerScore, playerIndex) => {
+              return (
+                <MatchCell
+                  key={playerIndex}
+                  match={match}
+                  score={playerScore}
+                  onClick={() => selectMatch(matchIndex, playerIndex)}
+                  {...{matchIndex, playerIndex}}
+                />
+              )
+            })}
+          </ScoreRow>
         )
-      })}
-    </ScoreRow>
+      }}
+    </MergedContexts>
   )
 }
 

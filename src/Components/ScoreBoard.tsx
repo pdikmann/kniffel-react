@@ -7,18 +7,17 @@ interface IScoreBoardProps {
   playerCount: number
   currentPlayer: number
   score: Score
-  diceValues: number[]
   children: JSX.Element[]
   turnState: TurnState
   rolling: boolean
 }
 
 function ScoreBoard(props: IScoreBoardProps) {
-  let headers = [(<td/>)] // init with empty cell (sits on top of label column)
+  let headers = [(<td key={-1}/>)] // init with empty cell (sits on top of label column)
   for (let i = 0; i < props.playerCount; i++) {
     let label = `~ ${i + 1} ~`,
       className = (i === props.currentPlayer) ? "active" : ""
-    headers.push(<th className={className}>{label}</th>)
+    headers.push(<th key={i} className={className}>{label}</th>)
   }
   return (
     <div id="scoreboard">
@@ -36,12 +35,9 @@ function ScoreBoard(props: IScoreBoardProps) {
           }
           return (
             <MatchRow key={matchIndex}
+                      matchIndex={matchIndex}
                       match={match}
-                      scores={scores}
-                      turnState={props.turnState}
-                      rolling={props.rolling}
-                      currentPlayer={props.currentPlayer}
-                      diceValues={props.diceValues}/>
+                      scores={scores}/>
           )
         })}
         {props.children}

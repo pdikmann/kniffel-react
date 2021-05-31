@@ -4,53 +4,93 @@ import Dice from './Components/Dice'
 import DiceContainer from './Components/DiceContainer'
 import RollButton from './Components/RollButton'
 import ScoreBoard from './Components/ScoreBoard'
-import {Score, TurnState} from './Types/Common'
+import {BonusState, IAppInteractions, IAppState, IDice, TurnState} from './Types/Common'
 import Config from './Components/Config'
+import {StateContext} from "./Components/StateContext";
+import {InteractionContext} from "./Components/InteractionContext";
+import matches from "./Logic/matches";
+
 
 interface IAppProps {
-}
-
-interface IDice {
-  value: number
-  keep: boolean
-}
-
-enum BonusState {
-  Undecided,
-  Fail,
-  Success
-}
-
-interface IAppState {
-  turnState: TurnState
-  hidden: boolean
-  playerCount: number
-  currentPlayer: number
-  dice: IDice[]
-  rolling: boolean
-  gameOver: boolean
-  score: Score                // score, indexed by [player-index][match-index]
-  bonus: number[]             // bonus score, indexed by [player-index]
-  bonusState: BonusState[]    // bonus state, indexed by [player-index]
-  lastSelectedMatch: number[] // indexed by [player-index]
 }
 
 let animationDuration = 450
 
 class App extends React.Component<IAppProps, IAppState> {
+  interactions: IAppInteractions
+
   constructor(props: IAppProps) {
     super(props)
-    this.advanceTurn = this.advanceTurn.bind(this)
-    this.state = {
+    // this.advanceTurn = this.advanceTurn.bind(this)
+    this.nextPlayer = this.nextPlayer.bind(this)
+    this.resetDice = this.resetDice.bind(this)
+    this.state = this.initialState(2)
+    this.interactions = {
+      advanceTurn: this.advanceTurn.bind(this),
+      keepDice: this.keepDice.bind(this),
+      selectMatch: this.selectMatch.bind(this)
+    }
+  }
+
+  selectMatch(matchIndex: number, playerIndex: number) {
+    console.log("matching")
+    this.setState((state) => {
+      if (state.rolling
+        || state.turnState === TurnState.FirstThrow
+        || state.currentPlayer !== playerIndex
+        || state.score[playerIndex][matchIndex] !== undefined)
+        return {...state}
+      let lastSelectedMatch = state.lastSelectedMatch.slice()
+      lastSelectedMatch[playerIndex] = matchIndex
+      let score = state.score.slice()
+      let playerScore = state.score[playerIndex].slice()
+      playerScore[matchIndex] = matches[matchIndex].fn(this.state.dice.map(d => d.value))
+      score[playerIndex] = playerScore
+      return {
+        lastSelectedMatch,
+        score
+      }
+    })
+    this.resetDice()
+    this.nextPlayer()
+  }
+
+  resetDice() {
+    this.setState(s => ({
+      dice: s.dice.map(d=>({...d, keep: false}))
+    }))
+  }
+
+  nextPlayer() {
+    this.setState(s => ({
+      turnState: TurnState.FirstThrow,
+      currentPlayer: (s.currentPlayer + 1) % s.playerCount
+    }))
+  }
+
+  initialState(playerCount: number) {
+    return {
       turnState: TurnState.FirstThrow,
       hidden: false,
-      playerCount: 1,
+      playerCount: playerCount,
       currentPlayer: 0,
-      dice: this.rollDice([]),
       rolling: false,
       gameOver: false,
-      ...this.perPlayerState(1)
+      ...this.perPlayerState(playerCount),
+      ...this.rollDice([])
     }
+  }
+
+  keepDice(n: number) {
+    if (this.state.turnState === TurnState.FirstThrow
+      || this.state.rolling) return
+    this.setState((s) => {
+      let dice = s.dice.slice(), // shallow copy!
+        d = {...dice[n]}
+      d.keep = !d.keep
+      dice[n] = d
+      return {dice}
+    })
   }
 
   setCssVariables(): void {
@@ -68,16 +108,20 @@ class App extends React.Component<IAppProps, IAppState> {
     document.documentElement.style.setProperty('--animation-duration', `${animationDuration}ms`)
   }
 
-  rollDice(dices: IDice[] | []): IDice[] {
-    let newDices = []
+  rollDice(oldDices: IDice[] | []): { dice: IDice[], diceValues: number[] } {
+    let dice = []
     for (let i = 0; i < 5; i++) {
-      if (dices[i] && dices[i].keep) continue
-      newDices[i] = {
-        value: Math.ceil(Math.random() * 6),
-        keep: false
+      if (oldDices[i] && oldDices[i].keep) {
+        dice[i] = oldDices[i]
+      } else {
+        dice[i] = {
+          value: Math.ceil(Math.random() * 6),
+          keep: false
+        }
       }
     }
-    return newDices
+    let diceValues = dice.map(d => d.value)
+    return {dice, diceValues}
   }
 
   advanceTurn() {
@@ -89,9 +133,11 @@ class App extends React.Component<IAppProps, IAppState> {
     }))
     setTimeout(() => {
       this.setState((state: IAppState) => ({
-        rolling: false,
-        turnState: (state.turnState + 1) % TurnState.MAX
-      }))
+          rolling: false,
+          turnState: (state.turnState + 1) % TurnState.MAX,
+          ...this.rollDice(state.dice)
+        })
+      )
     }, animationDuration)
   }
 
@@ -111,31 +157,33 @@ class App extends React.Component<IAppProps, IAppState> {
 
   render() {
     return (
-      <div id="wrapper" className={this.state.hidden ? "hidden" : ""}>
-        <DiceContainer>
-          {this.state.dice.map((d: IDice, i: number) =>
-            <Dice
-              key={i}
-              value={d.value}
-              keep={d.keep}
-              rolling={this.state.rolling}/>
-          )}
-        </DiceContainer>
-        <RollButton
-          turnState={this.state.turnState}
-          onClick={this.advanceTurn}/>
-        <div id="bottom-wrapper">
-          <ScoreBoard
-            playerCount={this.state.playerCount}
-            currentPlayer={this.state.currentPlayer}
-            score={this.state.score}
-            diceValues={this.state.dice.map((d: IDice) => d.value)}
-            turnState={this.state.turnState}
-            rolling={this.state.rolling}>
-          </ScoreBoard>
-        </div>
-        <Config/>
-      </div>
+      <StateContext.Provider value={this.state}>
+        <InteractionContext.Provider value={this.interactions}>
+          <div id="wrapper" className={this.state.hidden ? "hidden" : ""}>
+            {/*<WrappedExample/>*/}
+            <DiceContainer>
+              {this.state.dice.map((d: IDice, i: number) =>
+                <Dice
+                  key={i}
+                  n={i}
+                  value={d.value}
+                  keep={d.keep}/>
+              )}
+            </DiceContainer>
+            <RollButton/>
+            <div id="bottom-wrapper">
+              <ScoreBoard
+                playerCount={this.state.playerCount}
+                currentPlayer={this.state.currentPlayer}
+                score={this.state.score}
+                turnState={this.state.turnState}
+                rolling={this.state.rolling}>
+              </ScoreBoard>
+            </div>
+            <Config/>
+          </div>
+        </InteractionContext.Provider>
+      </StateContext.Provider>
     )
   }
 }
