@@ -32,6 +32,28 @@ class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
+  initialState(playerCount: number) {
+    return {
+      turnState: TurnState.FirstThrow,
+      hidden: false,
+      playerCount: playerCount,
+      currentPlayer: 0,
+      rolling: false,
+      gameOver: false,
+      ...this.perPlayerInitialState(playerCount),
+      ...this.rollDice([])
+    }
+  }
+
+  perPlayerInitialState(playerCount: number) {
+    return {
+      score: new Array(playerCount).fill([]),
+      bonus: new Array(playerCount).fill(0),
+      bonusState: new Array(playerCount).fill(BonusState.Undecided),
+      lastSelectedMatch: new Array(playerCount).fill(null)
+    }
+  }
+
   selectMatch(matchIndex: number, playerIndex: number) {
     console.log("matching")
     this.setState((state) => {
@@ -66,19 +88,6 @@ class App extends React.Component<IAppProps, IAppState> {
       turnState: TurnState.FirstThrow,
       currentPlayer: (s.currentPlayer + 1) % s.playerCount
     }))
-  }
-
-  initialState(playerCount: number) {
-    return {
-      turnState: TurnState.FirstThrow,
-      hidden: false,
-      playerCount: playerCount,
-      currentPlayer: 0,
-      rolling: false,
-      gameOver: false,
-      ...this.perPlayerState(playerCount),
-      ...this.rollDice([])
-    }
   }
 
   keepDice(n: number) {
@@ -139,15 +148,6 @@ class App extends React.Component<IAppProps, IAppState> {
         })
       )
     }, animationDuration)
-  }
-
-  perPlayerState(playerCount: number) {
-    return {
-      score: new Array(playerCount).fill([]),
-      bonus: new Array(playerCount).fill(0),
-      bonusState: new Array(playerCount).fill(BonusState.Undecided),
-      lastSelectedMatch: new Array(playerCount).fill(null)
-    }
   }
 
   componentDidMount() {
